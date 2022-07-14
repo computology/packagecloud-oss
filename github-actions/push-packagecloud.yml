@@ -1,0 +1,23 @@
+name: dev-ci
+on: [push]
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    container:
+      image: packagecloud/packagecloud-cli-python3.7:0.0.1
+      env:
+        PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+# UNCOMMENT: If you have python dependencies in requirements.txt
+#      - name: install python depedencies
+#        shell: bash -l {0}
+#        run: python3.7 -m pip install -r requirements.txt
+# MODIFY: Your own build steps
+      - name: build python package
+        shell: bash -l {0}
+        run: python3.7 setup.py sdist --formats=bztar,zip,gztar,tar
+# MODIFY: The repository to push to and the packages to push
+      - name: package_cloud push
+        shell: bash -l {0}
+        run: rvm use 2.7.5 && package_cloud push --yes --verbose khor_xenon/another_private/python dist/*.tar.gz
